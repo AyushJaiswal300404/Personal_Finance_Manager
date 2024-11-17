@@ -3,6 +3,7 @@ import pandas as pd
 from datetime import datetime
 import matplotlib.pyplot as plt
 from data_entry import get_date, get_amount, get_category, get_description
+from flask import Flask, request, jsonify
 
 class CSV:
     CSV_FILE = "your_csv_file.csv"
@@ -78,6 +79,25 @@ def add():
     description = get_description()
     CSV.add_entry(date, amount, category, description)
 
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return "Hello, this is your finance manager app!"
+
+@app.route('/add', methods=['POST'])
+def add_entry():
+    try:
+        data = request.json
+        date = data.get('date')
+        amount = data.get('amount')
+        category = data.get('category')
+        description = data.get('description')
+        CSV.add_entry(date, amount, category, description)
+        return jsonify({"message": "Entry added successfully"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 def main():
     CSV.initialize_csv()  # Ensure CSV file is initialized
     while True:
@@ -100,4 +120,5 @@ def main():
             print("Invalid choice. Enter 1, 2 or 3.")
 
 if __name__ == "__main__":
+    app.run(debug=True)
     main()
