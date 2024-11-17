@@ -1,9 +1,12 @@
-import csv
+from flask import Flask, request, jsonify
+from data_entry import get_date, get_amount, get_category, get_description
 import pandas as pd
 from datetime import datetime
 import matplotlib.pyplot as plt
-from data_entry import get_date, get_amount, get_category, get_description
-from flask import Flask, request, jsonify
+import io
+import base64
+
+app = Flask(__name__)
 
 class CSV:
     CSV_FILE = "your_csv_file.csv"
@@ -70,16 +73,15 @@ def plot_transactions(df):
     plt.title("Income and Expenses Over Time")
     plt.legend()
     plt.grid(True)
-    plt.show()
 
-def add():
-    date = get_date("Enter the date of the transaction(dd-mm-yyyy) or hit 'Enter' for today: ", allow_default=True)
-    amount = get_amount()
-    category = get_category()
-    description = get_description()
-    CSV.add_entry(date, amount, category, description)
+    # Save plot to a bytes buffer
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    img_base64 = base64.b64encode(buf.read()).decode('utf-8')
+    buf.close()
 
-app = Flask(__name__)
+    return img_base64
 
 @app.route('/')
 def index():
@@ -98,27 +100,27 @@ def add_entry():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-def main():
-    CSV.initialize_csv()  # Ensure CSV file is initialized
-    while True:
-        print("1. Add a new transaction")
-        print("2. View transactions")
-        print("3. Exit")
-        choice = input("Enter your choice(1-3): ")
-        if choice == "1":
-            add()
-        elif choice == "2":
-            start_date = get_date("Enter the start date(dd-mm-yyyy): ")
-            end_date = get_date("Enter the end date (dd-mm-yyyy): ")
-            filtered_df = CSV.get_transcation(start_date, end_date)
-            if input("Do you want to see a plot? (y/n)").lower() == "y":
-                plot_transactions(filtered_df)
-        elif choice == "3":
-            print("Exiting...")
-            break
-        else:
-            print("Invalid choice. Enter 1, 2 or 3.")
+@app.route('/transactions', methods=['GET'])
+def get_transactions():
+    try:
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+        filtered_df = CSV.get_transcation(start_date, end_date)
+        return filtered_df.to_json(orient='records')
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/plot', methods=['GET'])
+def get_plot():
+    try:
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+        filtered_df = CSV.get_transcation(start_date, end_date)
+        img_base64 = plot_transactions(filtered_df)
+        return f'<img src="data:image/png;base64,{img_base64}" />'
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
+    CSV.initialize_csv()  # Ensure CSV file is initialized
     app.run(debug=True)
-    main()
