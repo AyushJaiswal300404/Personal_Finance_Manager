@@ -1,0 +1,22 @@
+Date,Amount,Category,Description
+17-11-2024,200.0,Income,
+02-02-2024,500.0,Expense,
+05-01-2024,150.0,Income,Salary
+10-01-2024,50.0,Expense,Groceries
+15-01-2024,100.0,Income,Freelance
+20-01-2024,75.0,Expense,Utilities
+25-01-2024,200.0,Income,Bonus
+30-01-2024,60.0,Expense,Transport
+05-02-2024,180.0,Income,Salary
+10-02-2024,55.0,Expense,Groceries
+15-02-2024,120.0,Income,Freelance
+20-02-2024,80.0,Expense,Utilities
+25-02-2024,220.0,Income,Bonus
+28-02-2024,70.0,Expense,Transport
+05-03-2024,160.0,Income,Salary
+10-03-2024,65.0,Expense,Groceries
+15-03-2024,130.0,Income,Freelance
+20-03-2024,85.0,Expense,Utilities
+25-03-2024,240.0,Income,Bonus
+30-03-2024,75.0,Expense,Transport
+30-04-2024,2000.0,Expense,bday celebration
